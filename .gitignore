@@ -113,3 +113,6 @@ ENV/
 
 # DoxyGen documentation
 docs/code/
+
+# Databases
+db.*
