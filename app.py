@@ -2,12 +2,12 @@
 # @Author: caiovictormc
 # @Date:   2018-06-29 21:46:16
 # @Last Modified by:   caiovictormc
-# @Last Modified time: 2018-06-30 18:40:22
+# @Last Modified time: 2018-06-30 19:40:32
 
 from flask import Flask, jsonify, render_template
 from prettyconf import config
 
-from views import Device
+from views import DeviceView
 
 
 app = Flask(__name__)
@@ -17,7 +17,7 @@ app.config['SECRET_KEY'] = config('SECRET_KEY')
 # URLs
 BASE_ENDPOINT = '/api/v1/'
 
-app.add_url_rule(BASE_ENDPOINT + 'device', view_func=Device.as_view('device'))
+app.add_url_rule(BASE_ENDPOINT + 'device', view_func=DeviceView.as_view('device'))
 
 
 if __name__ == '__main__':
