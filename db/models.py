@@ -2,7 +2,7 @@
 # @Author: caiovictormc
 # @Date:   2018-06-29 22:28:44
 # @Last Modified by:   caiovictormc
-# @Last Modified time: 2018-06-30 17:30:05
+# @Last Modified time: 2018-06-30 17:35:28
 
 from . import collection
 import uuid
@@ -36,7 +36,6 @@ class Device:
                 setattr(self, field, str(value))
 
     def save(self):
-
         empty_fields = []
         for field in self.REQUIRED_FIELDS:
             if not getattr(self, field):
