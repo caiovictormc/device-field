@@ -2,7 +2,7 @@
 # @Author: caiovictormc
 # @Date:   2018-06-29 22:28:44
 # @Last Modified by:   caiovictormc
-# @Last Modified time: 2018-06-30 17:35:28
+# @Last Modified time: 2018-06-30 19:50:47
 
 from . import collection
 import uuid
@@ -34,6 +34,15 @@ class Device:
         else:
             for field, value in kwargs.items():
                 setattr(self, field, str(value))
+
+    def to_dict(self):
+        return {
+            "device_name": self.device_name, 
+            "app": self.app, 
+            "mqtt_username": self.mqtt_username,
+            "mqtt_password": self.mqtt_password,
+            "mqtt_client_id": self.mqtt_client_id
+        }
 
     def save(self):
         empty_fields = []
