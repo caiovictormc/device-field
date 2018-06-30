@@ -2,7 +2,7 @@
 # @Author: caiovictormc
 # @Date:   2018-06-29 21:46:16
 # @Last Modified by:   caiovictormc
-# @Last Modified time: 2018-06-30 11:52:03
+# @Last Modified time: 2018-06-30 18:40:22
 
 from flask import Flask, jsonify, render_template
 from prettyconf import config
