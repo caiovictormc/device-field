@@ -2,7 +2,7 @@
 # @Author: caiovictormc
 # @Date:   2018-06-29 22:28:44
 # @Last Modified by:   caiovictormc
-# @Last Modified time: 2018-06-30 19:50:47
+# @Last Modified time: 2018-06-30 22:08:37
 
 from . import collection
 import uuid
@@ -12,8 +12,13 @@ class Device:
 
     REQUIRED_FIELDS = ['app', 'user_id', 'device_name']
 
+    SEARCHABLE_FIELDS = [
+        'app', 'user_id', 'device_name', 'mqtt_username', 'mqtt_client_id'
+    ]
+
+
     def __init__(self, **kwargs):
-        self.client_id = None
+        self.mqtt_client_id = None
         self.mqtt_username = None
         self.mqtt_password = None
         
@@ -35,6 +40,20 @@ class Device:
             for field, value in kwargs.items():
                 setattr(self, field, str(value))
 
+    @classmethod
+    def filter(cls, **kwargs):
+        unallowed_fields = list(
+            filter(lambda key: key not in cls.SEARCHABLE_FIELDS, kwargs.keys())
+        )
+
+        if unallowed_fields:
+            e_msg = '{} fields not allowed were found: {}'.format( 
+                len(unallowed_fields), ', '.join(unallowed_fields)
+            )
+            raise TypeError(e_msg)
+        else:
+            return list(collection.find(kwargs, {'_id': False}))
+
     def to_dict(self):
         return {
             "device_name": self.device_name, 
@@ -51,7 +70,7 @@ class Device:
                 empty_fields.append(field)
 
         if not empty_fields:
-            return self.__save()
+            return self
 
         else:
             e_msg = 'missing {} empty fields: {}'.format( 
@@ -87,7 +106,6 @@ class Device:
         while True:
             value = str(uuid.uuid4())
             if not collection.find_one({field_name: value}):
-                print(value)
                 setattr(self, field_name, str(value))
                 return value
 

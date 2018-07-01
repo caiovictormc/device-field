@@ -2,7 +2,7 @@
 # @Author: caiovictormc
 # @Date:   2018-06-30 18:37:48
 # @Last Modified by:   caiovictormc
-# @Last Modified time: 2018-06-30 20:08:03
+# @Last Modified time: 2018-06-30 20:17:02
 
 from flask import request, Response, jsonify
 
@@ -13,6 +13,7 @@ from functools import wraps
 def check_auth(token):
     return True
 
+
 def authenticate():
     response = jsonify({
 		"errors": {
@@ -22,9 +23,11 @@ def authenticate():
     response.status_code = 401
     return response
 
+
 def get_auth_token(request):
 	headers = request.headers
 	return headers.get('Authorization')
+
 
 def auth_required(f):
 	@wraps(f)
