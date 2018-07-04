@@ -2,22 +2,39 @@
 # @Author: caiovictormc
 # @Date:   2018-06-29 21:46:16
 # @Last Modified by:   caiovictormc
-# @Last Modified time: 2018-06-30 19:40:32
+# @Last Modified time: 2018-07-02 15:27:23
 
 from flask import Flask, jsonify, render_template
 from prettyconf import config
 
-from views import DeviceView
+from views import DeviceView, MQTTAuthView, MQTTAclView, MQTTAdminView
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = config('SECRET_KEY')
 
 
-# URLs
-BASE_ENDPOINT = '/api/v1/'
+# BASE URLs
+API_BASE_URL = '/api/v1/'
+MQTT_BASE_URL = '/mqtt/v1/'
 
-app.add_url_rule(BASE_ENDPOINT + 'device', view_func=DeviceView.as_view('device'))
+# API URLs
+app.add_url_rule(
+	API_BASE_URL + 'device', 
+	view_func=DeviceView.as_view('device'))
+
+# MQTT Auth URLs
+app.add_url_rule(
+	MQTT_BASE_URL + 'auth', 
+	view_func=MQTTAuthView.as_view('mqtt-auth'))
+
+app.add_url_rule(
+	MQTT_BASE_URL + 'superuser', 
+	view_func=MQTTAdminView.as_view('mqtt-admin'))
+
+app.add_url_rule(
+	MQTT_BASE_URL + 'acl', 
+	view_func=MQTTAclView.as_view('mqtt-acl'))
 
 
 if __name__ == '__main__':
