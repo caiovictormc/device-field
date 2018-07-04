@@ -2,7 +2,7 @@
 # @Author: caiovictormc
 # @Date:   2018-06-29 22:28:44
 # @Last Modified by:   caiovictormc
-# @Last Modified time: 2018-07-03 22:06:01
+# @Last Modified time: 2018-07-04 00:08:11
 
 from . import collection
 import uuid
@@ -11,14 +11,14 @@ import uuid
 class Document:
 
     REQUIRED_FIELDS = []
-    SEARCHABLE_FIELDS = []
+    FIELDS = []
+    UNIQUE_FIELDS = []
 
 
     @classmethod
     def filter(cls, **kwargs):
-        print('hi')
         unallowed_fields = list(
-            filter(lambda key: key not in cls.SEARCHABLE_FIELDS, kwargs.keys())
+            filter(lambda key: key not in cls.FIELDS, kwargs.keys())
         )
 
         if unallowed_fields:
@@ -30,14 +30,59 @@ class Document:
             return list(collection.find(kwargs, {'_id': False}))
 
 
+    def __filled_required_fields(self):
+        empty_fields = []
+
+        for field in self.REQUIRED_FIELDS:
+            if not getattr(self, field):
+                empty_fields.append(field)
+
+        if empty_fields:
+            e_msg = 'missing {} empty fields: {}'.format( 
+                len(empty_fields), ', '.join(empty_fields)
+            )
+            raise TypeError(e_msg)
+
+        return not empty_fields
+
+
+    def __save(self):
+        if self.__filled_required_fields():
+            data = self.to_dict()
+            return collection.insert_one(data).inserted_id
+
+
+    # def is_unique(self):
+    #     if self.__filled_required_fields():
+    #         list_of_dicts = [
+    #             {unique_field: getattr(self, unique_field)} for unique_field in self.UNIQUE_FIELDS 
+    #         ]
+    #         return list(collection.find({"$or": list_of_dicts}))
+
+
+    def to_dict(self):
+        return {
+            field: getattr(self, field) for field in self.FIELDS
+        }
+
+
+
+class User(Document):
+
+    REQUIRED_FIELDS = ['app', 'user_id', 'mqtt_username', 'mqtt_password']
+
+
+
 class Device(Document):
 
     REQUIRED_FIELDS = ['app', 'user_id', 'device_name']
 
-    SEARCHABLE_FIELDS = [
+    FIELDS = [
         'app', 'user_id', 'device_name', 
         'mqtt_username', 'mqtt_client_id', 'mqtt_password'
     ]
+
+    UNIQUE_FIELDS = ['user_id', 'device_name']
 
 
     def __init__(self, **kwargs):
@@ -62,6 +107,12 @@ class Device(Document):
         else:
             for field, value in kwargs.items():
                 setattr(self, field, str(value))
+
+
+    def save(self):
+        # apply filters before saving document
+        return self.__save()
+
 
     # @classmethod
     # def filter(cls, **kwargs):
@@ -136,20 +187,20 @@ class Device(Document):
 #             "mqtt_client_id": self.mqtt_client_id
 #         }
 
-#     def save(self):
-#         empty_fields = []
-#         for field in self.REQUIRED_FIELDS:
-#             if not getattr(self, field):
-#                 empty_fields.append(field)
+    # def save(self):
+    #     empty_fields = []
+    #     for field in self.REQUIRED_FIELDS:
+    #         if not getattr(self, field):
+    #             empty_fields.append(field)
 
-#         if not empty_fields:
-#             return self
+    #     if not empty_fields:
+    #         return self
 
-#         else:
-#             e_msg = 'missing {} empty fields: {}'.format( 
-#                 len(empty_fields), ', '.join(empty_fields)
-#             )
-#             raise TypeError(e_msg)
+    #     else:
+    #         e_msg = 'missing {} empty fields: {}'.format( 
+    #             len(empty_fields), ', '.join(empty_fields)
+    #         )
+    #         raise TypeError(e_msg)
 
 #     def doc_structure(self):
 #         if self.__exists():
@@ -196,5 +247,34 @@ class Device(Document):
 #         return collection.insert_one(data).inserted_id
 
 
+# for unique_field in self.UNIQUE_FIELDS:
+# object_credentials = {
+#     'app': self.app,
+#     'user_id': self.user_id,
+#     'device_name': self.device_name
+# }
+# 
+# field_type=SEARCHABLE_FIELDS
+# collection.find_one()
 
+
+    # def save(self):
+    #     empty_fields = []
+    #     for field in self.REQUIRED_FIELDS:
+    #         if not getattr(self, field):
+    #             empty_fields.append(field)
+
+    #     if not empty_fields:
+    #         return self.__save()
+
+    #     else:
+    #         e_msg = 'missing {} empty fields: {}'.format( 
+    #             len(empty_fields), ', '.join(empty_fields)
+    #         )
+    #         raise TypeError(e_msg)
+
+
+    # def __save(self):
+    #     data = self.doc_structure()
+    #     return collection.insert_one(data).inserted_id
 
